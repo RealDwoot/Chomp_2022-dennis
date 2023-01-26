@@ -4,11 +4,20 @@ import java.util.ArrayList;
 public class MyPlayer {
     public Chip[][] gameBoard;
     public int[] columns;
+   public  ArrayList<Board> resultBoardList = new ArrayList<>();
+    public  ArrayList<Board> losingBoardList = new ArrayList<>();
+
 
 
     public MyPlayer() {
         columns = new int[10];
-
+        Board f = new Board();
+        f.boardState.add(1);
+        f.boardState.add(0);
+        f.boardState.add(0);
+        f.moveToMakeCol = 0;
+        f.moveToMakeRow = 0;
+        losingBoardList.add(f);
         /***
          * This code will run just once, when the game opens.
          * Add your code here.
@@ -17,6 +26,13 @@ public class MyPlayer {
 
         int n = 3;
         print3x3boards(n);
+
+        System.out.println("losign bords");
+        for(int x = 0; x< losingBoardList.size(); x++)
+        {
+            System.out.println(losingBoardList.get(x).boardState.get(0) + ", "+ losingBoardList.get(x).boardState.get(1)+", "+ losingBoardList.get(x).boardState.get(2)+ " c: " +losingBoardList.get(x).moveToMakeCol+ " r: " +losingBoardList.get(x).moveToMakeRow);
+
+        }
 
     }
 
@@ -41,11 +57,21 @@ public class MyPlayer {
         gameBoard = pBoard;
         columns = checkChips(gameBoard);
 
-        int column = 0;
-        int row = 0;
+        int column = 1;
+        int row = 1;
 
-        row = 1;
-        column = 1;
+        for(int x = 0; x<resultBoardList.size(); x++){
+            System.out.println(resultBoardList.get(x).boardState.get(0) + ", "+ resultBoardList.get(x).boardState.get(1)+", "+ resultBoardList.get(x).boardState.get(2)+ " c: " +resultBoardList.get(x).moveToMakeCol+ " r: " +resultBoardList.get(x).moveToMakeRow);
+        }
+
+        for(int x = 0; x<resultBoardList.size(); x++){
+
+            if(resultBoardList.get(x).boardState.get(0) == columns[0] && resultBoardList.get(x).boardState.get(1) == columns[1] && resultBoardList.get(x).boardState.get(2) == columns[2]){
+                row = resultBoardList.get(x).moveToMakeRow;
+                column = resultBoardList.get(x).moveToMakeCol;
+                System.out.println("match r:"+ row +" c:" +column);
+            }
+        }
 
         /***
          * This code will run each time the "MyPlayer" button is pressed.
@@ -63,7 +89,12 @@ public class MyPlayer {
                 for (int z = 0; z <= y; z++) {
                     System.out.println(Integer.toString(x) + " " + Integer.toString(y) + " " + Integer.toString(z));
                     System.out.println("–");
-                    resultBoards(x,y,z);
+                    Board temp = new Board();
+                    temp.boardState.add(x);
+                    temp.boardState.add(y);
+                    temp.boardState.add(z);
+
+                    resultBoards(temp);
                     System.out.println("––––––––––––––––");
 
                 }
@@ -71,45 +102,297 @@ public class MyPlayer {
         }
     }
 
-    public void resultBoards(int x, int y, int z) {
+    public ArrayList<Board> resultBoards(Board b) {
+        Board board = new Board();
+        board.boardState.add( b.boardState.get(0));
+        board.boardState.add( b.boardState.get(1));
+        board.boardState.add( b.boardState.get(2));
+
+        Board newBoard = new Board();
+        newBoard.boardState.add( b.boardState.get(0));
+        newBoard.boardState.add( b.boardState.get(1));
+        newBoard.boardState.add( b.boardState.get(2));
+        boolean foundLosing = false;
+        int x = b.boardState.get(0);
+        int y = b.boardState.get(1);
+        int z = b.boardState.get(2);
+
+        for (int w = z-1; w >= 0; w--) {
 
 
-        for (int w = z; w >= 1; w--) {
+          //  System.out.println(Integer.toString(x) + " " + Integer.toString(y) + " " + Integer.toString(z-w));
+           // System.out.println("||   " + Integer.toString(z-w) + ", " + Integer.toString(2));
 
-            System.out.println(Integer.toString(x) + " " + Integer.toString(y) + " " + Integer.toString(z-w));
-            System.out.println("||   " + Integer.toString(z-w) + ", " + Integer.toString(2));
+            newBoard.boardState.set(0, x);
+            newBoard.boardState.set(1, y);
+            newBoard.boardState.set(2, w);
+            System.out.println(newBoard.boardState.get(0) + " ," + newBoard.boardState.get(1) + " ," + newBoard.boardState.get(2));
+
+            //if(!foundLosing){
+           // if(BoardIsWinning(newBoard)){
+            for (int ii = 0; ii < losingBoardList.size(); ii++) {
+                //System.out.println("erhgo");
+                if (losingBoardList.get(ii).boardState.get(0) == newBoard.boardState.get(0) && losingBoardList.get(ii).boardState.get(1) == newBoard.boardState.get(1) && losingBoardList.get(ii).boardState.get(2) == newBoard.boardState.get(2)) {
+                    System.out.println("found2");
+                    System.out.println(newBoard.boardState.get(0) + " ," + newBoard.boardState.get(1) + " ," + newBoard.boardState.get(2));
+                    System.out.println(board.boardState.get(0) + " ," + board.boardState.get(1) + " ," + board.boardState.get(2));
+
+                    foundLosing = true;
+                    for (int i = 0; i < board.boardState.size(); i++) {
+                        if (board.boardState.get(i) - newBoard.boardState.get(i) == 0) {
+                            //continue;
+                        } else {
+                            board.moveToMakeCol = i;
+                            board.moveToMakeRow = newBoard.boardState.get(i);
+                        }
+                    }
+                    System.out.println("r: " + board.moveToMakeRow + "c: " + board.moveToMakeRow);
+
+                }
+            }
+
+          //  resultBoardList.add(newBoard);
         }
 
-        for (int u = y; u >= 1; u--) {
+        x = b.boardState.get(0);
+        y = b.boardState.get(1);
+        z = b.boardState.get(2);
+        for (int u = y-1; u >= 0; u--) {
 
-            if(y==z) {
-                System.out.println(Integer.toString(x) + " " + Integer.toString(y-u) + " " + Integer.toString(z-u));
+            if(z>u) {
+                z = u;
             }
-            else {
-                System.out.println(Integer.toString(x) + " " + Integer.toString(y-u) + " " + Integer.toString(z));
+              //  System.out.println(Integer.toString(x) + " " + Integer.toString(y-u) + " " + Integer.toString(z-u));
+
+//                newBoard.boardState.set(0, x);
+//                newBoard.boardState.set(1, y-u);
+//                newBoard.boardState.set(2, z-u);
+//                System.out.println("j");
+//                System.out.println(y-u);
+//                System.out.println(newBoard.boardState.size());
+//                System.out.println(newBoard.boardState.get(0) + " ," + newBoard.boardState.get(1) + " ," + newBoard.boardState.get(2));
+//
+//                // if(!foundLosing){
+//                //if(BoardIsWinning(newBoard)){
+//                for (int ii = 0; ii < losingBoardList.size(); ii++) {
+//                    //System.out.println("erhgo");
+//                    if (losingBoardList.get(ii).boardState.get(0) == newBoard.boardState.get(0) && losingBoardList.get(ii).boardState.get(1) == newBoard.boardState.get(1) && losingBoardList.get(ii).boardState.get(1) == newBoard.boardState.get(1)) {
+//
+//                        System.out.println(newBoard.boardState.get(0) + " ," + newBoard.boardState.get(1) + " ," + newBoard.boardState.get(2));
+//                        System.out.println(board.boardState.get(0) + " ," + board.boardState.get(1) + " ," + board.boardState.get(2));
+//
+//                        foundLosing = true;
+//                        for (int i = 0; i < board.boardState.size(); i++) {
+//                            if (board.boardState.get(i) - newBoard.boardState.get(i) == 0) {
+//                                // continue;
+//                            } else {
+//                                board.moveToMakeCol = i;
+//                                board.moveToMakeRow = newBoard.boardState.get(i);
+//                                break;
+//                            }
+//                        }
+//                        System.out.println("r: " + board.moveToMakeRow + "c: " + board.moveToMakeRow);
+//                    }
+//                }
+//                //resultBoardList.add(newBoard);
+
+
+            //else {
+               // System.out.println(Integer.toString(x) + " " + Integer.toString(y-u) + " " + Integer.toString(z));
+
+                newBoard.boardState.set(0, x);
+                newBoard.boardState.set(1, u);
+                newBoard.boardState.set(2, z);
+                System.out.println(newBoard.boardState.get(0) + " ," + newBoard.boardState.get(1) + " ," + newBoard.boardState.get(2));
+
+                //  if(!foundLosing){
+                //if(BoardIsWinning(newBoard)){
+                for (int ii = 0; ii < losingBoardList.size(); ii++) {
+                    //System.out.println("erhgo");
+                    System.out.println("losing");
+                    System.out.println(losingBoardList.get(ii).boardState.get(0) + " ," + losingBoardList.get(ii).boardState.get(1) + " ," + losingBoardList.get(ii).boardState.get(2));
+                    System.out.println("reduced");
+                    System.out.println(newBoard.boardState.get(0) + " ," + newBoard.boardState.get(1) + " ," + newBoard.boardState.get(2));
+
+                    if (losingBoardList.get(ii).boardState.get(0) == newBoard.boardState.get(0) && losingBoardList.get(ii).boardState.get(1) == newBoard.boardState.get(1) && losingBoardList.get(ii).boardState.get(2) == newBoard.boardState.get(2)) {
+                        System.out.println("found1");
+
+                        System.out.println(newBoard.boardState.get(0) + " ," + newBoard.boardState.get(1) + " ," + newBoard.boardState.get(2));
+                        System.out.println(board.boardState.get(0) + " ," + board.boardState.get(1) + " ," + board.boardState.get(2));
+
+                        foundLosing = true;
+                        for (int i = 0; i < board.boardState.size(); i++) {
+                            if (board.boardState.get(i) - newBoard.boardState.get(i) == 0) {
+                                //continue;
+                            } else {
+                                board.moveToMakeCol = i;
+                                board.moveToMakeRow = newBoard.boardState.get(i);
+                                break;
+                            }
+                        }
+                        System.out.println("r: " + board.moveToMakeRow + " c: " + board.moveToMakeRow);
+
+                    }
+                }
+               // resultBoardList.add(newBoard);
             }
 
-            System.out.println("||   " + Integer.toString(y-u) + ", " + Integer.toString(1));
+        //}
+        x = b.boardState.get(0);
+        y = b.boardState.get(1);
+        z = b.boardState.get(2);
+
+        for (int v = x-1; v >= 1; v--) {
+            if(z>v) {
+                z = v;
+            }
+            if(y>v) {
+                y = v;
+            }
+
+//            if(x==y && x==z) {
+//               // System.out.println(Integer.toString(x-v) + " " + Integer.toString(y-v) + " " + Integer.toString(z-v));
+//
+//                newBoard.boardState.set(0, x-v);
+//                newBoard.boardState.set(1, y-v);
+//                newBoard.boardState.set(2, z-v);
+//                System.out.println(newBoard.boardState.get(0) + " ," + newBoard.boardState.get(1) + " ," + newBoard.boardState.get(2));
+//
+//                for (int ii = 0; ii < losingBoardList.size(); ii++) {
+//                    //System.out.println("erhgo");
+//                    if (losingBoardList.get(ii).boardState.get(0) == newBoard.boardState.get(0) && losingBoardList.get(ii).boardState.get(1) == newBoard.boardState.get(1) && losingBoardList.get(ii).boardState.get(1) == newBoard.boardState.get(1)) {
+//
+//                        // if(BoardIsWinning(newBoard)){
+//                        System.out.println(newBoard.boardState.get(0) + " ," + newBoard.boardState.get(1) + " ," + newBoard.boardState.get(2));
+//                        System.out.println(board.boardState.get(0) + " ," + board.boardState.get(1) + " ," + board.boardState.get(2));
+//
+//                        foundLosing = true;
+//                        for (int i = 0; i < board.boardState.size(); i++) {
+//                            if (board.boardState.get(i) - newBoard.boardState.get(i) == 0) {
+//                                // continue;
+//                            } else {
+//                                board.moveToMakeCol = i;
+//                                board.moveToMakeRow = newBoard.boardState.get(i);
+//                                break;
+//                            }
+//                        }
+//                        System.out.println("r: " + board.moveToMakeRow + "c: " + board.moveToMakeRow);
+//
+//                    }
+//                }
+//
+//               // resultBoardList.add(newBoard);
+//            }
+//            else if(x==y) {
+//              //  System.out.println(Integer.toString(x-v) + " " + Integer.toString(y-v) + " " + Integer.toString(z));
+//
+//                newBoard.boardState.set(0, x-v);
+//                newBoard.boardState.set(1, y-v);
+//                newBoard.boardState.set(2, z);
+//                System.out.println(newBoard.boardState.get(0) + " ," + newBoard.boardState.get(1) + " ," + newBoard.boardState.get(2));
+//
+//                //if(!foundLosing){
+//                //if(BoardIsWinning(newBoard)){
+//                for (int ii = 0; ii < losingBoardList.size(); ii++) {
+//                    //System.out.println("erhgo");
+//                    if (losingBoardList.get(ii).boardState.get(0) == newBoard.boardState.get(0) && losingBoardList.get(ii).boardState.get(1) == newBoard.boardState.get(1) && losingBoardList.get(ii).boardState.get(1) == newBoard.boardState.get(1)) {
+//
+//                        System.out.println(newBoard.boardState.get(0) + " ,"+newBoard.boardState.get(1)+ " ,"+newBoard.boardState.get(2));
+//                    System.out.println(board.boardState.get(0) + " ,"+board.boardState.get(1)+ " ,"+board.boardState.get(2));
+//
+//                    foundLosing = true;
+//                    for (int i = 0; i < board.boardState.size(); i++) {
+//                        System.out.println("hi");
+//
+//                        if (board.boardState.get(i) - newBoard.boardState.get(i) == 0) {
+//                            //continue;
+//                        }
+//                        else {
+//                            board.moveToMakeCol = i;
+//                            board.moveToMakeRow = newBoard.boardState.get(i);
+//                            break;
+//                        }
+//                    }
+//                    System.out.println("r: "+board.moveToMakeRow+"c: "+ board.moveToMakeRow);
+//
+//                }
+//                }
+//
+//                //resultBoardList.add(newBoard);
+//            }
+//            else {
+              //  System.out.println(Integer.toString(x-v) + " " + Integer.toString(y) + " " + Integer.toString(z));
+
+                newBoard.boardState.set(0, v);
+                newBoard.boardState.set(1, y);
+                newBoard.boardState.set(2, z);
+                System.out.println(newBoard.boardState.get(0) + " ," + newBoard.boardState.get(1) + " ," + newBoard.boardState.get(2));
+
+                //     if(!foundLosing){
+                //if(BoardIsWinning(newBoard)){
+                 //   foundLosing = ;
+
+                for (int ii = 0; ii < losingBoardList.size(); ii++) {
+                    //System.out.println("erhgo");
+                    if (losingBoardList.get(ii).boardState.get(0) == newBoard.boardState.get(0) && losingBoardList.get(ii).boardState.get(1) == newBoard.boardState.get(1) && losingBoardList.get(ii).boardState.get(2) == newBoard.boardState.get(2)) {
+                        System.out.println("found3");
+                        foundLosing = true;
+
+                        System.out.println(newBoard.boardState.get(0) + " ," + newBoard.boardState.get(1) + " ," + newBoard.boardState.get(2));
+                        System.out.println(board.boardState.get(0) + " ," + board.boardState.get(1) + " ," + board.boardState.get(2));
+
+                        for (int i = 0; i < board.boardState.size(); i++) {
+                           // System.out.println("hi");
+                            if (board.boardState.get(i) - newBoard.boardState.get(i) == 0) {
+                                // continue;
+                            } else {
+                             //   System.out.println("hi1");
+                                board.moveToMakeCol = i;
+                                board.moveToMakeRow = newBoard.boardState.get(i);
+                                System.out.println("c: " + i + "r " + newBoard.boardState.get(i));
+                                System.out.println("r: " + board.moveToMakeRow + "c: " + board.moveToMakeCol);
+
+                                //  break;
+                            }
+                        }
+
+                    }
+                }
+
+                //resultBoardList.add(newBoard);
+            }
+
+
+        x = b.boardState.get(0);
+        y = b.boardState.get(1);
+        z = b.boardState.get(2);
+
+        System.out.println(foundLosing);
+        if(foundLosing)
+        {
+            resultBoardList.add(board);
+        }
+        else{
+            //it is a losing board so I don't need to set a moveToMake
+            board.moveToMakeRow = 0;
+            board.moveToMakeCol = 0;
+
+//            for (int i = 0; i < board.boardState.size(); i++) {
+//                if(board.boardState.get(i) == board.boardState.get(0)) {
+//                    board.moveToMakeCol = i;
+//                    //set move to make col
+//                }
+//            }
+            losingBoardList.add(board);
+            resultBoardList.add(board);
 
         }
 
-        for (int v = x; v >= 1; v--) {
-            if(x==y && x==z) {
-                System.out.println(Integer.toString(x-v) + " " + Integer.toString(y-v) + " " + Integer.toString(z-v));
-            }
-            else if(x==y) {
-                System.out.println(Integer.toString(x-v) + " " + Integer.toString(y-v) + " " + Integer.toString(z));
 
-            }
-            else {
-                System.out.println(Integer.toString(x-v) + " " + Integer.toString(y) + " " + Integer.toString(z));
-            }
-
-            System.out.println("||   " + Integer.toString(x-v) + ", " + Integer.toString(0));
-
-        }
-
-        
+//        for (int i = 0; i < resultBoardList.size(); i++) {
+//            System.out.println(resultBoardList.get(i).boardState);
+//        }
+        return resultBoardList;
 
     }
 
@@ -126,15 +409,19 @@ public class MyPlayer {
     How should I order my boards
      */
 
-    /*public void BoardIsWinning(ArrayList<Integer> board) {
-        for (i in resultBoards()) {
-        if (BoardIsWinning(i) == false) {
-            return true;
-        } else {
-            return false;
+    public boolean BoardIsWinning(Board board) {
+
+        for (int i = 0; i < losingBoardList.size(); i++) {
+            //System.out.println("erhgo");
+             if (losingBoardList.get(i).boardState.get(0) == board.boardState.get(0) && losingBoardList.get(i).boardState.get(1) == board.boardState.get(1) && losingBoardList.get(i).boardState.get(1) == board.boardState.get(1)) {
+                 // we have found a winning board
+                 System.out.println("found winning");
+                 return true;
+
+            }
         }
-        }
-    } */
+        return false;
+    }
 
 
 }
